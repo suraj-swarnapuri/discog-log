@@ -9,6 +9,8 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	ah "github.com/suraj-swarnapuri/discogify/api/account"
+	as "github.com/suraj-swarnapuri/discogify/services/account"
 )
 
 // spaHandler implements the http.Handler interface, so we can use it
@@ -49,10 +51,14 @@ func (h spaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func main() {
 	router := mux.NewRouter()
 
+	accountService := as.NewService()
+	accountHandler := ah.NewHandler(accountService)
 	router.HandleFunc("/api/health", func(w http.ResponseWriter, r *http.Request) {
 		// an example API handler
 		json.NewEncoder(w).Encode(map[string]bool{"ok": true})
 	})
+
+	router.HandleFunc("/api/user/register", accountHandler.HandleRegister).Methods("POST")
 
 	spa := spaHandler{staticPath: "frontend/build", indexPath: "index.html"}
 	router.PathPrefix("/").Handler(spa)
