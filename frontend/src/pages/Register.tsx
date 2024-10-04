@@ -10,9 +10,10 @@ import {
 } from "@mui/material";
 import { LockOutlined } from "@mui/icons-material";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Register = () => {
+  const navigate = useNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -30,10 +31,10 @@ const Register = () => {
     });
 
     const data = await response.json();
-    console.log(data);
 
     if (response.status === 200) {
       console.log("User registered successfully");
+      navigate("/", {state: { user: data }});
     } else {
       console.log("User registration failed");
     }
