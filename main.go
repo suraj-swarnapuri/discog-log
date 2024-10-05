@@ -52,6 +52,9 @@ func main() {
 	router := mux.NewRouter()
 
 	accountService := as.NewService()
+	// seed account
+	accountService.Register("email", "pass", "Suraj")
+
 	accountHandler := ah.NewHandler(accountService)
 	router.HandleFunc("/api/health", func(w http.ResponseWriter, r *http.Request) {
 		// an example API handler

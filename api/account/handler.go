@@ -2,6 +2,7 @@ package account
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/suraj-swarnapuri/discogify/services/account"
@@ -102,6 +103,7 @@ func (h Handler) HandleLogin(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return
 	}
+	fmt.Printf("user: %v\n", u)
 
 	// Check if a cookie with the same name already exists
 	existingCookie, err := r.Cookie("user_id")
