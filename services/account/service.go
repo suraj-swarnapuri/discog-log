@@ -20,7 +20,16 @@ func (s *Service) Register(email, password, name string) (User, error) {
 	return user, nil
 }
 
-func (s *Service) Login(email string) (User, error) {
+func (s *Service) GetUserByID(id string) (User, error) {
+	for _, user := range s.users {
+		if user.ID == id {
+			return user, nil
+		}
+	}
+	return User{}, errors.New("user not found")
+}
+
+func (s *Service) GetUserByEmail(email string) (User, error) {
 	for _, user := range s.users {
 		if user.Email == email {
 			return user, nil

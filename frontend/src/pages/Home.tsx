@@ -1,12 +1,21 @@
-import React from "react";
-import { useLocation } from "react-router-dom";
+import React, { useEffect, useState } from "react";
 
 const Home = () => {
-  const location = useLocation();
+  interface User {
+    Name: string;
+  }
 
-  // Access the state object
-  const userData = location.state?.user;
-  console.log(userData);
+  const [userData, setUserData] = useState<User | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const response = await fetch("/api/user");
+      const data = await response.json();
+      setUserData(data);
+    };
+
+    fetchData();
+  }, []);
 
   return (
     <div>

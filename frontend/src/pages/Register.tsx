@@ -9,7 +9,7 @@ import {
   Typography,
 } from "@mui/material";
 import { LockOutlined } from "@mui/icons-material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 const Register = () => {
@@ -17,6 +17,25 @@ const Register = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const cookies = document.cookie;
+
+      // Optionally, parse the cookie to extract user data
+      const userCookie = cookies
+        .split("; ")
+        .find((row) => row.startsWith("user_id="));
+      if (userCookie) {
+        const response = await fetch("/api/user");
+        if (response.status === 200) {
+          navigate("/",);
+        }
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const handleRegister = async () => {
     // grab name, email and password and validate it in the backend
@@ -30,11 +49,9 @@ const Register = () => {
       body: JSON.stringify({ name, email, password }),
     });
 
-    const data = await response.json();
-
     if (response.status === 200) {
       console.log("User registered successfully");
-      navigate("/", {state: { user: data }});
+      navigate("/",);
     } else {
       console.log("User registration failed");
     }

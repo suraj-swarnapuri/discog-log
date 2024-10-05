@@ -59,6 +59,8 @@ func main() {
 	})
 
 	router.HandleFunc("/api/user/register", accountHandler.HandleRegister).Methods("POST")
+	router.HandleFunc("/api/user", accountHandler.HandleUser).Methods("GET")
+	router.HandleFunc("/api/user/login", accountHandler.HandleLogin).Methods("POST")
 
 	spa := spaHandler{staticPath: "frontend/build", indexPath: "index.html"}
 	router.PathPrefix("/").Handler(spa)

@@ -9,7 +9,7 @@ import {
   Button,
   Grid2,
 } from "@mui/material";
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 const Login = () => {
@@ -17,12 +17,40 @@ const Login = () => {
   const [password, setPassword] = useState("");
 
   const navigate = useNavigate();
+  useEffect(() => {
+    const fetchData = async () => {
+      const cookies = document.cookie;
 
-  const handleLogin = () => {
+      // Optionally, parse the cookie to extract user data
+      const userCookie = cookies
+        .split("; ")
+        .find((row) => row.startsWith("user_id="));
+      if (userCookie) {
+        navigate("/",);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const handleLogin = async () => {
    // grab email and password and validate it in the backend
    // if 200 OK then navigate to the home page
    // if not show an error message on the screen
-    navigate("/");
+   const response = await fetch("http://localhost:8000/api/user/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password }),
+    })
+
+    if (response.status === 200) {
+      console.log("User registered successfully");
+      navigate("/",);
+    } else {
+      console.log("User registration failed");
+    }
   };
 
   return (
