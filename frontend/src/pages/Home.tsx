@@ -32,6 +32,43 @@ const Home = () => {
     navigate("/login");
   };
 
+  const handleDiscog = async () => {
+    const registerDiscog = async () => {
+      const response = await fetch("/api/discog/register",{
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({}),
+      });
+      if (!response.ok) {
+        console.log("Failed to register Discog");
+        return;
+      }else{
+        console.log("Discog registered successfully");
+      }
+
+    };
+
+    const authDiscog = async () => {
+      const response = await fetch("/api/discog/auth");
+      if (!response.ok) {
+        console.log("Failed to authenticate Discog");
+        return;
+      }
+      const data = await response.json();
+      return data["url"];
+    }
+
+    registerDiscog();
+    let url = await authDiscog();
+    if (url) {
+      window.open(url);
+    }
+//    window.open("www.google.com", "_blank");
+
+  };
+
   if (!userData) {
     return <div>Loading...</div>;
   }
@@ -58,11 +95,11 @@ const Home = () => {
             height: "80vh",
           }}
         >
-          <Button variant="contained" color="primary" sx={{ mb: 2 }}>
-            RegisterDiscog
+          <Button variant="contained" color="primary" sx={{ mb: 2 }} onClick={handleDiscog}>
+            Register Discog
           </Button>
           <Button variant="contained" color="secondary">
-            RegisterSpotify
+            Register Spotify
           </Button>
         </Box>
       </Container>

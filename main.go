@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -10,7 +11,9 @@ import (
 
 	"github.com/gorilla/mux"
 	ah "github.com/suraj-swarnapuri/discogify/api/account"
+	dh "github.com/suraj-swarnapuri/discogify/api/discog"
 	as "github.com/suraj-swarnapuri/discogify/services/account"
+	ds "github.com/suraj-swarnapuri/discogify/services/discog"
 )
 
 // spaHandler implements the http.Handler interface, so we can use it
@@ -50,27 +53,34 @@ func (h spaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	router := mux.NewRouter()
+	ctx := context.Background()
 
 	accountService := as.NewService()
+	discogService := ds.NewService(ctx)
 	// seed account
 	accountService.Register("email", "pass", "Suraj")
 
 	accountHandler := ah.NewHandler(accountService)
-	router.HandleFunc("/api/health", func(w http.ResponseWriter, r *http.Request) {
-		// an example API handler
-		json.NewEncoder(w).Encode(map[string]bool{"ok": true})
-	})
 
 	router.HandleFunc("/api/user/register", accountHandler.HandleRegister).Methods("POST")
 	router.HandleFunc("/api/user", accountHandler.HandleUser).Methods("GET")
 	router.HandleFunc("/api/user/login", accountHandler.HandleLogin).Methods("POST")
+
+	discogHandler := dh.NewHandler(discogService)
+	router.HandleFunc("/api/discog/register", discogHandler.HandleRegister).Methods("POST")
+	router.HandleFunc("/api/discog/auth", discogHandler.Authenticate).Methods("GET")
+
+	router.HandleFunc("/api/health", func(w http.ResponseWriter, r *http.Request) {
+		// an example API handler
+		json.NewEncoder(w).Encode(map[string]bool{"ok": true})
+	})
 
 	spa := spaHandler{staticPath: "frontend/build", indexPath: "index.html"}
 	router.PathPrefix("/").Handler(spa)
 
 	srv := &http.Server{
 		Handler: router,
-		Addr:    "127.0.0.1:8000",
+		Addr:    "0.0.0.0:8000",
 		// Good practice: enforce timeouts for servers you create!
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
