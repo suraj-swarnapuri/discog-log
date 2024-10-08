@@ -46,7 +46,7 @@ func (h *Handler) HandleRegister(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (h *Handler) Authenticate(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) HandleAuthenticate(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("auth user")
 	existingCookie, err := r.Cookie("user_id")
 	if err != nil {
@@ -71,4 +71,42 @@ func (h *Handler) Authenticate(w http.ResponseWriter, r *http.Request) {
 	// write url to json response
 	json.NewEncoder(w).Encode(map[string]string{"url": url})
 
+}
+
+type registerTokenRequest struct {
+	VerificationCode string `json:"verification_code"`
+}
+
+func (h *Handler) HandleRegisterToken(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("registering token")
+	existingCookie, err := r.Cookie("user_id")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if existingCookie == nil {
+		http.Error(w, "no user logged in", http.StatusUnauthorized)
+		return
+	}
+
+	client, err := h.service.GetClient(existingCookie.Value)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	var req registerTokenRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err = client.Register(req.VerificationCode)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 }

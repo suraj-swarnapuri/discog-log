@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { AppBar, Toolbar, Typography, Button, Container, Box } from "@mui/material";
+import { AppBar, Toolbar, Typography, Button, TextField, Container, Box } from "@mui/material";
 
 interface User {
   Name: string;
@@ -9,6 +9,8 @@ interface User {
 
 const Home = () => {
   const [userData, setUserData] = useState<User | null>(null);
+  const [isFormVisible, setIsFormVisible] = useState(false);
+  const [discogtoken, setDiscogToken] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -24,6 +26,24 @@ const Home = () => {
 
     fetchData();
   }, [navigate]);
+
+  const handleSubmit = async () => {
+    // Handle form submission
+    const response = await fetch("http://localhost:8000/api/discog/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ discogtoken }),
+    });
+    if (response.status === 200) {
+      setDiscogToken("");
+      setIsFormVisible(false);
+      console.log("Form submitted successfully");
+    } else {
+      console.log("Form submission failed");
+    }
+  }
 
   const handleLogout = () => {
     // Clear user data and navigate to login page
@@ -62,8 +82,10 @@ const Home = () => {
 
     registerDiscog();
     let url = await authDiscog();
+    console.log(url)
     if (url) {
       window.open(url);
+      setIsFormVisible(true);
     }
 //    window.open("www.google.com", "_blank");
 
@@ -97,7 +119,16 @@ const Home = () => {
         >
           <Button variant="contained" color="primary" sx={{ mb: 2 }} onClick={handleDiscog}>
             Register Discog
-          </Button>
+            </Button>
+            {isFormVisible && (
+            <Box sx={{ mt: 2 }}>
+              <TextField label="Enter something" variant="outlined" sx={{ mb: 2 }} value={discogtoken} onChange={(e) => setDiscogToken(e.target.value)} />
+              <Button variant="contained" color="primary" onClick={handleSubmit}>
+                Submit
+              </Button>
+            </Box>
+          )}
+            
           <Button variant="contained" color="secondary">
             Register Spotify
           </Button>

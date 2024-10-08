@@ -16,9 +16,10 @@ const (
 )
 
 type Client struct {
-	c        *http.Client
-	token    *oauth.AccessToken
-	consumer *oauth.Consumer
+	c            *http.Client
+	token        *oauth.AccessToken
+	consumer     *oauth.Consumer
+	requestToken *oauth.RequestToken
 }
 
 func New(ctx context.Context) (*Client, error) {
@@ -45,7 +46,9 @@ func (dc *Client) authenticate(ctx context.Context) (string, error) {
 			AuthorizeTokenUrl: "https://www.discogs.com/oauth/authorize",
 			AccessTokenUrl:    "https://api.discogs.com/oauth/access_token",
 		})
-	_, u, err := dc.consumer.GetRequestTokenAndUrl("oob")
+	var u string
+	var err error
+	dc.requestToken, u, err = dc.consumer.GetRequestTokenAndUrl("oob")
 	if err != nil {
 		return "", err
 	}
@@ -64,6 +67,16 @@ func (dc *Client) authenticate(ctx context.Context) (string, error) {
 
 	// return dc.makeClient(access_token)
 	return u, nil
+}
+
+func (dc *Client) Register(verificationCode string) error {
+	access_token, err := dc.consumer.AuthorizeToken(dc.requestToken, verificationCode)
+	if err != nil {
+		return err
+	}
+
+	return dc.makeClient(access_token)
+
 }
 
 func (dc *Client) makeClient(access_token *oauth.AccessToken) error {

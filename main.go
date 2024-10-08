@@ -68,7 +68,8 @@ func main() {
 
 	discogHandler := dh.NewHandler(discogService)
 	router.HandleFunc("/api/discog/register", discogHandler.HandleRegister).Methods("POST")
-	router.HandleFunc("/api/discog/auth", discogHandler.Authenticate).Methods("GET")
+	router.HandleFunc("/api/discog/auth", discogHandler.HandleAuthenticate).Methods("GET")
+	router.HandleFunc("/api/discog/register_token", discogHandler.HandleRegisterToken).Methods("POST")
 
 	router.HandleFunc("/api/health", func(w http.ResponseWriter, r *http.Request) {
 		// an example API handler
